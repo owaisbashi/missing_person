@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Missing Relatives Image Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header>
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Your Logo">
+    </header>
+    <main>
+      <h1>Missing Relatives Images</h1>
+      <section id="image-list">
+      <div id="image-list">
+        <!-- Images will be dynamically added here -->
+      </div>
+    </section>
+
+    <section id="capture">
+        <h2>Capture Image</h2>
+        <input type="file" id="image-upload">
+        <button id="upload-button">Upload</button>
+    </section>
+
+    <section id="comparison-result">
+        <h2>Comparison Result</h2>
+        <div id="result"></div>
+    </section>
+
+    </main>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
