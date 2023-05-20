@@ -1,5 +1,9 @@
 from flask import Flask, request, redirect, url_for,session, render_template,jsonify
 import os
+import pandas as pd
+import face_recognition
+import cv2
+import numpy as np
 from sqlalchemy import create_engine
 import mysql.connector
 from datetime import datetime
@@ -9,7 +13,7 @@ connection = mysql.connector.connect(host='localhost',
                                              database='missing_person')
 
 
-engine = create_engine('mysql+mysqlconnector://root:@localhost/student_exam_managemet')
+engine = create_engine('mysql+mysqlconnector://root:@localhost/missing_person')
 
 
 app=Flask(__name__)
@@ -58,9 +62,55 @@ def get_images():
     ]
     return jsonify(images)
 
-@app.route('/check')
+@app.route('/check',methods=['POST'])
 def check():
+    # latitude = request.form.get('latitude')
+    # longitude = request.form.get('longitude')
+    # print(latitude,longitude)
+    # # Process the geolocation data as needed
+
+    # # Process the uploaded image
+    print(request.files)
+    latitude_file = request.files['latitude']
+    latitude = latitude_file.read().decode('utf-8')
+
+    # Get the longitude file
+    longitude_file = request.files['longitude']
+    longitude = longitude_file.read().decode('utf-8')
+
+    image=request.files['image']
+
+    target_image= face_recognition.load_image_file(image)
+    target_face_encodings = face_recognition.face_encodings(target_image)[0]
+
+
+    db_image_paths=pd.read_sql_query('''select image_path from missing_person''',engine)['image_path'].tolist()
+
+    db_images=[]
+    db_images_encodings=[]
+    for i in db_image_paths:
+        print(i)
+        img=face_recognition.load_image_file(i)
+        db_images.append(img)
+        db_images_encodings.append(face_recognition.face_encodings(img)[0])
+
+    known_face_encodings=db_images_encodings
+    known_face_names=pd.read_sql_query('''select name from missing_person''',engine)['name'].tolist()
     
+    results = face_recognition.compare_faces(known_face_encodings, target_face_encodings)
+
+    
+
+    matching_names = [known_face_names[i] for i, result in enumerate(results) if result]
+    
+    print('results',matching_names)
+    name_str = ' '.join(matching_names)
+
+    print(latitude,longitude)
+    # image = request.files['imageInput']
+    # # ...
+
+    return {'message': f'{name_str}'}
 
 if __name__ == '__main__':
     app.run()
