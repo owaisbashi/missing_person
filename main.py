@@ -35,6 +35,10 @@ def get_place_from_coordinates(latitude, longitude):
         return "No results found for the given coordinates."
 
 
+@app.route('/donation')
+def donation():
+    return render_template('donation.html')
+
 @app.route('/form_submission',methods=['POST'])
 def form_submision():
 
