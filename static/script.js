@@ -77,6 +77,17 @@ function submitForm(formData) {
       // Update the comparison result section with the result
       // const result = document.getElementById('result');
       // result.textContent = 'Comparison Result: ...';
+
+      // Update the person's name in the HTML
+      const nameElement = document.getElementById('name');
+      nameElement.textContent = `Name: ${data.message}`;
+
+      // Update the person's location in the HTML
+      const locationElement = document.getElementById('location');
+      locationElement.textContent = `Location: ${data.place}`;
+
+
+
       console.log(data);
       console.log("hello");
     })

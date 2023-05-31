@@ -7,6 +7,9 @@ import numpy as np
 from sqlalchemy import create_engine
 import mysql.connector
 from datetime import datetime
+import geocoder
+import os
+
 connection = mysql.connector.connect(host='localhost',
                                              user='root',
                                              password='',
@@ -22,6 +25,14 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 @app.route('/')
 def main():
     return render_template('main.html')
+
+def get_place_from_coordinates(latitude, longitude):
+    location = geocoder.osm([latitude, longitude], method='reverse')
+    
+    if location.ok:
+        return location.address
+    else:
+        return "No results found for the given coordinates."
 
 
 @app.route('/form_submission',methods=['POST'])
@@ -60,7 +71,17 @@ def get_images():
         '/static/uploads/bill.jpg',
         '/static/uploads/joe.jpg',
     ]
-    return jsonify(images)
+
+    folder_path = "static/uploads"  # Path to the "uploads" folder within the "static" folder
+
+# Get the list of file names in the folder
+    file_names = os.listdir(folder_path)
+
+    file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]
+
+    print(file_paths)
+
+    return jsonify(file_paths)
 
 @app.route('/check',methods=['POST'])
 def check():
@@ -106,11 +127,14 @@ def check():
     print('results',matching_names)
     name_str = ' '.join(matching_names)
 
-    print(latitude,longitude)
+    print(name_str)
+
+    place = get_place_from_coordinates(latitude, longitude)
+    print(place)
     # image = request.files['imageInput']
     # # ...
 
-    return {'message': f'{name_str}'}
+    return {'message': f'{name_str}','place':place}
 
 if __name__ == '__main__':
     app.run()
